@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPIC IH Daily</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f7f7f5;
+    color: #1a1a1a;
+    min-height: 100vh;
+  }
+
+  header {
+    padding: 24px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e8e8e4;
+    background: #fff;
+  }
+
+  .logo { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; }
+  .badge {
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+    background: #1a1a1a;
+    padding: 3px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+  }
+
+  .date-nav {
+    padding: 20px 32px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .date-nav button {
+    background: none;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #555;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .date-nav button:hover { background: #f0f0f0; }
+
+  .date-label {
+    font-size: 13px;
+    color: #888;
+  }
+
+  .today-btn {
+    font-size: 12px;
+    color: #555;
+    background: none;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 3px 10px;
+    cursor: pointer;
+    height: 28px;
+  }
+  .today-btn:hover { background: #f0f0f0; }
+
+  main {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+  }
+
+  .topic-header {
+    margin-bottom: 32px;
+  }
+
+  .topic-number {
+    font-size: 12px;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .topic-title {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+
+  .topic-title-en {
+    font-size: 15px;
+    color: #888;
+    font-weight: 400;
+  }
+
+  .section {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+    border: 1px solid #ebebeb;
+  }
+
+  .section-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #aaa;
+    margin-bottom: 16px;
+  }
+
+  .questions-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .question-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .q-num {
+    font-size: 11px;
+    font-weight: 600;
+    color: #bbb;
+    margin-top: 2px;
+    min-width: 18px;
+  }
+
+  .q-text {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #222;
+  }
+
+  .vocab-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .vocab-item {
+    background: #f7f7f5;
+    border-radius: 8px;
+    padding: 10px 14px;
+  }
+
+  .vocab-en {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 2px;
+  }
+
+  .vocab-ko {
+    font-size: 12px;
+    color: #888;
+  }
+
+  .tip-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .tip-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #444;
+  }
+
+  .tip-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #ccc;
+    margin-top: 8px;
+    flex-shrink: 0;
+  }
+
+  .structure-box {
+    background: #f7f7f5;
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 14px;
+    line-height: 1.8;
+    color: #444;
+  }
+
+  .structure-box strong {
+    color: #1a1a1a;
+  }
+
+  .progress-bar-wrap {
+    margin-top: 24px;
+    background: #ebebeb;
+    border-radius: 4px;
+    height: 4px;
+  }
+
+  .progress-bar {
+    height: 4px;
+    border-radius: 4px;
+    background: #1a1a1a;
+    transition: width 0.4s ease;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #aaa;
+    margin-top: 8px;
+  }
+
+  .done-btn {
+    width: 100%;
+    padding: 16px;
+    background: #1a1a1a;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: opacity 0.2s;
+  }
+  .done-btn:hover { opacity: 0.85; }
+  .done-btn.completed {
+    background: #4caf50;
+  }
+
+  .streak-info {
+    text-align: center;
+    font-size: 13px;
+    color: #aaa;
+    margin-top: 12px;
+  }
+
+  .streak-info span {
+    color: #1a1a1a;
+    font-weight: 600;
+  }
+
+  /* calendar strip */
+  .cal-strip {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-bottom: 8px;
+    scrollbar-width: none;
+  }
+  .cal-strip::-webkit-scrollbar { display: none; }
+
+  .cal-day {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 8px;
+    transition: background 0.15s;
+  }
+  .cal-day:hover { background: #f0f0f0; }
+  .cal-day.active { background: #1a1a1a; }
+  .cal-day.active .cal-wd, .cal-day.active .cal-d { color: #fff; }
+  .cal-day.done-day .cal-dot { background: #4caf50; }
+  .cal-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: transparent;
+  }
+  .cal-wd { font-size: 10px; color: #aaa; text-transform: uppercase; }
+  .cal-d { font-size: 13px; font-weight: 600; color: #333; }
+
+  /* sample answer */
+  .sample-toggle {
+    width: 100%;
+    padding: 11px 16px;
+    background: #f7f7f5;
+    color: #555;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s;
+  }
+  .sample-toggle:hover { background: #efefef; }
+
+  .sample-body {
+    margin-top: 14px;
+    font-size: 15px;
+    line-height: 1.85;
+    color: #333;
+    background: #f7f7f5;
+    border-radius: 8px;
+    padding: 16px 18px;
+    border-left: 3px solid #1a1a1a;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">OPIC IH Daily</div>
+  <div class="badge">IH</div>
+</header>
+
+<main>
+  <div class="date-nav" id="dateNav"></div>
+
+  <div id="calStrip" style="padding: 12px 32px 0; max-width: 744px; margin: 0 auto;"></div>
+
+  <div id="app"></div>
+</main>
+
+<script>
+const TOPICS = [
+  {
+    title: "자기소개", en: "Self-Introduction",
+    questions: [
+      "Tell me about yourself and your background.",
+      "What do you do for a living, and what does a typical day look like for you?",
+      "What are some of your hobbies or interests outside of work?",
+      "Describe your personality. How would your friends describe you?",
+      "What are some goals you have for the near future?"
+    ],
+    vocab: [
+      { en: "currently working as", ko: "현재 ~로 일하다" },
+      { en: "in charge of", ko: "~을 담당하다" },
+      { en: "passionate about", ko: "~에 열정적인" },
+      { en: "outgoing / introverted", ko: "외향적 / 내향적" },
+      { en: "make the most of", ko: "최대한 활용하다" },
+      { en: "long-term goal", ko: "장기적 목표" },
+    ],
+    tips: [
+      "먼저 직업/역할을 간결하게 소개한 후, 일상으로 자연스럽게 연결하세요.",
+      "성격 묘사 시 구체적인 에피소드를 짧게 덧붙이면 IH 수준을 보여줄 수 있습니다.",
+      "목표를 말할 때 'I hope to...' 대신 'I'm planning to...'나 'I'm working toward...'를 사용하면 더 능동적입니다.",
+    ],
+    structure: `<strong>오프닝</strong> → 직업/역할 소개<br>
+<strong>미들</strong> → 일상 루틴 + 취미/관심사<br>
+<strong>클로징</strong> → 성격 or 목표 한 문장`
+  },
+  {
+    title: "집 묘사", en: "Describing Your Home",
+    questions: [
+      "Can you describe the home you currently live in?",
+      "What does your favorite room in your home look like?",
+      "How is your home different from when you were a child?",
+      "What would you change about your home if you could?",
+      "Tell me about your neighborhood and what it's like to live there."
+    ],
+    vocab: [
+      { en: "cozy / spacious", ko: "아늑한 / 넓은" },
+      { en: "right next to", ko: "바로 옆에" },
+      { en: "overlook", ko: "~을 내려다보다" },
+      { en: "face south", ko: "남향이다" },
+      { en: "renovate", ko: "리모델링하다" },
+      { en: "have access to", ko: "~에 접근할 수 있다" },
+    ],
+    tips: [
+      "위치 → 크기/구조 → 특징 순으로 자연스럽게 묘사하세요.",
+      "'There is/are'로 시작하는 문장보다 'My apartment features...'처럼 주어를 집으로 두면 더 유창하게 들립니다.",
+      "좋아하는 공간에 대해 이유와 감정을 덧붙이면 답변이 풍부해집니다.",
+    ],
+    structure: `<strong>위치/유형</strong> → 아파트/주택, 동네 위치<br>
+<strong>구조</strong> → 방 개수, 주요 공간 소개<br>
+<strong>특징</strong> → 마음에 드는 점 + 이유`
+  },
+  {
+    title: "여행", en: "Travel",
+    questions: [
+      "Tell me about a memorable trip you have taken.",
+      "What kind of traveler are you — do you prefer planned trips or spontaneous ones?",
+      "Compare traveling now to how you used to travel in the past.",
+      "What's the most challenging experience you've had while traveling?",
+      "If you could travel anywhere, where would you go and why?"
+    ],
+    vocab: [
+      { en: "itinerary", ko: "여행 일정" },
+      { en: "off the beaten path", ko: "잘 알려지지 않은 곳" },
+      { en: "soak up the atmosphere", ko: "분위기를 만끽하다" },
+      { en: "deal with", ko: "~을 해결/처리하다" },
+      { en: "broaden one's horizons", ko: "시야를 넓히다" },
+      { en: "spontaneous", ko: "즉흥적인" },
+    ],
+    tips: [
+      "여행 경험은 STAR 구조(상황→문제→행동→결과)로 말하면 IH에서 AL로 넘어가는 답변이 됩니다.",
+      "과거와 현재를 비교할 때 'Back then... but now...' 패턴을 활용하세요.",
+      "감정 표현(excited, overwhelmed, relieved)을 구체적인 장면과 연결하세요.",
+    ],
+    structure: `<strong>언제/어디서</strong> → 여행지, 시기<br>
+<strong>무엇을 했나</strong> → 주요 활동 2–3가지<br>
+<strong>기억에 남는 이유</strong> → 감정 + 구체적 장면`
+  },
+  {
+    title: "영화 감상", en: "Watching Movies",
+    questions: [
+      "What kind of movies do you enjoy watching and why?",
+      "Tell me about a movie that left a strong impression on you.",
+      "Do you prefer watching movies at home or at the theater? Why?",
+      "How has your taste in movies changed over the years?",
+      "Have you ever watched a movie that was different from your expectations?"
+    ],
+    vocab: [
+      { en: "plot twist", ko: "반전" },
+      { en: "visually stunning", ko: "시각적으로 압도적인" },
+      { en: "relate to", ko: "~에 공감하다" },
+      { en: "on the edge of my seat", ko: "긴장되어 못 앉아있는" },
+      { en: "box office hit", ko: "흥행작" },
+      { en: "soundtrack", ko: "영화 음악" },
+    ],
+    tips: [
+      "좋아하는 장르 → 이유 → 구체적인 영화 예시 순서로 전개하세요.",
+      "영화를 단순히 '재미있었다'고 하지 말고, 어떤 장면이나 요소가 인상적이었는지 구체적으로 설명하세요.",
+      "감독, 배우 이름을 언급하면 자연스럽게 답변 길이를 늘릴 수 있습니다.",
+    ],
+    structure: `<strong>선호 장르</strong> → 이유<br>
+<strong>인상적인 영화</strong> → 줄거리 요약 + 인상적인 장면<br>
+<strong>개인적 반응</strong> → 감정/생각`
+  },
+  {
+    title: "음악 감상", en: "Listening to Music",
+    questions: [
+      "What kind of music do you enjoy, and when do you usually listen to it?",
+      "Tell me about a song or album that is meaningful to you.",
+      "Do you have a favorite artist or band? Describe their music.",
+      "How has music influenced your life?",
+      "Have you ever been to a concert or music festival?"
+    ],
+    vocab: [
+      { en: "upbeat / mellow", ko: "경쾌한 / 잔잔한" },
+      { en: "lyrics", ko: "가사" },
+      { en: "resonate with", ko: "~에 공명하다/와닿다" },
+      { en: "live performance", ko: "라이브 공연" },
+      { en: "set the mood", ko: "분위기를 만들다" },
+      { en: "genre", ko: "장르" },
+    ],
+    tips: [
+      "음악을 듣는 상황(운동 중, 출퇴근, 공부 중)과 연결하면 자연스러운 답변이 됩니다.",
+      "아티스트 설명 시 'known for their...' 구조를 사용하세요.",
+      "콘서트 경험은 감각적 묘사(소리, 분위기, 군중)를 포함하면 더 생동감 있습니다.",
+    ],
+    structure: `<strong>선호 장르/분위기</strong> → 듣는 상황<br>
+<strong>좋아하는 아티스트</strong> → 음악 스타일 소개<br>
+<strong>음악의 의미</strong> → 개인적 영향`
+  },
+  {
+    title: "운동 / 스포츠", en: "Sports & Exercise",
+    questions: [
+      "What kind of physical activities or sports do you enjoy?",
+      "Describe your exercise routine.",
+      "Tell me about a time you played or watched a particularly exciting game or match.",
+      "How has your attitude toward exercise changed as you've gotten older?",
+      "Is there a sport or physical activity you would like to try?"
+    ],
+    vocab: [
+      { en: "work out / hit the gym", ko: "운동하다 / 헬스장 가다" },
+      { en: "stay in shape", ko: "체형을 유지하다" },
+      { en: "competitive / recreational", ko: "경쟁적인 / 취미용" },
+      { en: "pull a muscle", ko: "근육을 삐다" },
+      { en: "push oneself", ko: "자신을 밀어붙이다" },
+      { en: "cool down", ko: "스트레칭/쿨다운" },
+    ],
+    tips: [
+      "현재 루틴을 설명할 때 빈도(세 번/주)와 지속 시간(한 시간)을 구체적으로 밝히세요.",
+      "운동을 시작한 계기나 변화(체력 향상, 스트레스 해소)를 언급하면 답변이 풍부해집니다.",
+      "과거와 현재 비교 질문에는 'used to' 구조가 유용합니다.",
+    ],
+    structure: `<strong>어떤 운동</strong> → 빈도/시간<br>
+<strong>운동하는 이유</strong> → 신체적/정신적 효과<br>
+<strong>인상적인 경험</strong> → 에피소드`
+  },
+  {
+    title: "쇼핑", en: "Shopping",
+    questions: [
+      "Describe your shopping habits. Do you enjoy shopping?",
+      "Tell me about a recent purchase you made.",
+      "Do you prefer shopping online or in person? Why?",
+      "Has your shopping behavior changed because of technology?",
+      "Tell me about a time you returned something or had a problem with a purchase."
+    ],
+    vocab: [
+      { en: "browse", ko: "둘러보다" },
+      { en: "bargain / deal", ko: "할인 / 좋은 거래" },
+      { en: "impulse buy", ko: "충동구매" },
+      { en: "window shopping", ko: "아이쇼핑" },
+      { en: "loyalty program", ko: "포인트/멤버십 프로그램" },
+      { en: "refund / exchange", ko: "환불 / 교환" },
+    ],
+    tips: [
+      "온라인 vs 오프라인 비교 답변은 pros and cons 구조로 정리하면 깔끔합니다.",
+      "특정 구매 경험을 말할 때는 왜 그걸 샀는지, 만족했는지까지 이야기하세요.",
+      "문제 상황(반품 등)은 STAR 구조로 이야기하면 자연스럽습니다.",
+    ],
+    structure: `<strong>쇼핑 성향</strong> → 온라인/오프, 빈도<br>
+<strong>최근 구매</strong> → 무엇을, 왜<br>
+<strong>만족도 or 트러블</strong> → 에피소드`
+  },
+  {
+    title: "요리 / 음식", en: "Cooking & Food",
+    questions: [
+      "Do you enjoy cooking? What kinds of food do you usually make?",
+      "Describe a dish that is special to you.",
+      "How has your diet or eating habits changed over the years?",
+      "Tell me about a memorable dining experience.",
+      "What are your thoughts on eating out versus cooking at home?"
+    ],
+    vocab: [
+      { en: "recipe", ko: "조리법" },
+      { en: "from scratch", ko: "처음부터 직접 만들어" },
+      { en: "savory / spicy / mild", ko: "짭짤한 / 매운 / 순한" },
+      { en: "cuisine", ko: "~식 요리" },
+      { en: "dining out", ko: "외식하다" },
+      { en: "comfort food", ko: "먹으면 위안이 되는 음식" },
+    ],
+    tips: [
+      "요리를 즐기지 않는다면 '외식 선호'로 자연스럽게 전환하면 됩니다.",
+      "특별한 음식 소개 시 재료 → 조리법 → 맛/느낌 순으로 묘사하세요.",
+      "식습관 변화 질문에는 건강, 바쁜 생활, 혼자 사는 것 등을 계기로 언급하세요.",
+    ],
+    structure: `<strong>요리 습관</strong> → 자주 만드는 음식<br>
+<strong>특별한 음식</strong> → 소개 + 의미<br>
+<strong>식습관 변화 or 외식 경험</strong>`
+  },
+  {
+    title: "건강 / 웰빙", en: "Health & Wellness",
+    questions: [
+      "How do you take care of your health on a daily basis?",
+      "Tell me about a time you were sick or injured and how you dealt with it.",
+      "What lifestyle changes have you made to be healthier?",
+      "How do you manage stress in your life?",
+      "What do you think is the most important factor for maintaining good health?"
+    ],
+    vocab: [
+      { en: "maintain a balanced diet", ko: "균형 잡힌 식단을 유지하다" },
+      { en: "get enough sleep", ko: "충분한 수면을 취하다" },
+      { en: "burn out", ko: "번아웃되다" },
+      { en: "wind down", ko: "긴장을 풀다" },
+      { en: "preventive care", ko: "예방적 건강관리" },
+      { en: "mental well-being", ko: "정신적 웰빙" },
+    ],
+    tips: [
+      "일상적인 건강 루틴(수면, 식단, 운동)을 구체적으로 설명하세요.",
+      "스트레스 관리 방법은 단순 나열보다 'what works best for me is...' 형태로 개인화하세요.",
+      "과거 아팠던 경험은 상황 → 대처 → 결과 순서로 이야기하세요.",
+    ],
+    structure: `<strong>건강 루틴</strong> → 식단/운동/수면<br>
+<strong>스트레스 관리</strong> → 방법 + 이유<br>
+<strong>인상적인 경험</strong> → 아픔/회복 에피소드`
+  },
+  {
+    title: "기술 / 테크놀로지", en: "Technology",
+    questions: [
+      "How does technology play a role in your daily life?",
+      "What device or app do you use the most, and why?",
+      "How has technology changed the way you work or study?",
+      "What are some downsides of relying so much on technology?",
+      "Tell me about a time technology either helped you a lot or caused you a problem."
+    ],
+    vocab: [
+      { en: "rely on / depend on", ko: "~에 의존하다" },
+      { en: "streamline", ko: "효율화하다" },
+      { en: "stay connected", ko: "연결 상태를 유지하다" },
+      { en: "distraction", ko: "주의 분산" },
+      { en: "digital detox", ko: "디지털 디톡스" },
+      { en: "update / upgrade", ko: "업데이트 / 업그레이드" },
+    ],
+    tips: [
+      "기술의 긍정적 측면과 부정적 측면 모두 언급하면 균형 잡힌 답변이 됩니다.",
+      "앱이나 기기를 설명할 때 'It allows me to...' 또는 'Thanks to this, I can...' 패턴을 활용하세요.",
+      "기술 관련 에피소드는 문제 → 해결 또는 도움 → 결과 구조로 말하세요.",
+    ],
+    structure: `<strong>주요 사용 기기/앱</strong> → 이유<br>
+<strong>일상 속 역할</strong> → 업무/취미<br>
+<strong>장단점 or 에피소드</strong>`
+  },
+  {
+    title: "인터넷 / SNS", en: "Internet & Social Media",
+    questions: [
+      "How do you use the internet in your everyday life?",
+      "What social media platforms do you use, and how do they impact your daily routine?",
+      "What are the benefits and drawbacks of social media?",
+      "Has the way you use the internet changed over the past few years?",
+      "Have you ever had a negative experience related to the internet or social media?"
+    ],
+    vocab: [
+      { en: "scroll through", ko: "스크롤하며 훑어보다" },
+      { en: "post / share content", ko: "게시물 올리다 / 공유하다" },
+      { en: "go viral", ko: "바이럴 되다" },
+      { en: "filter bubble", ko: "필터 버블" },
+      { en: "cyberbullying", ko: "사이버 불링" },
+      { en: "influencer", ko: "인플루언서" },
+    ],
+    tips: [
+      "SNS 사용 습관(어떤 플랫폼, 하루 얼마나)을 구체적으로 설명하세요.",
+      "장단점을 비교할 때 'On the one hand... On the other hand...' 구조를 사용하면 체계적으로 들립니다.",
+      "부정적 경험은 감정적 반응과 이후 행동 변화까지 이야기하면 풍부한 답변이 됩니다.",
+    ],
+    structure: `<strong>사용 패턴</strong> → 플랫폼, 빈도<br>
+<strong>장점</strong> → 소통/정보<br>
+<strong>단점 or 에피소드</strong>`
+  },
+  {
+    title: "환경 / 날씨", en: "Environment & Weather",
+    questions: [
+      "What is the weather like in your city throughout the year?",
+      "What is your favorite season and why?",
+      "How does the weather affect your mood or daily activities?",
+      "What environmental issues concern you the most?",
+      "What do you do personally to help the environment?"
+    ],
+    vocab: [
+      { en: "humid / dry", ko: "습한 / 건조한" },
+      { en: "climate change", ko: "기후 변화" },
+      { en: "carbon footprint", ko: "탄소 발자국" },
+      { en: "renewable energy", ko: "재생 에너지" },
+      { en: "eco-friendly", ko: "친환경적인" },
+      { en: "heat wave / cold snap", ko: "폭염 / 한파" },
+    ],
+    tips: [
+      "날씨 묘사 시 계절별 특징을 간결하게 언급하고 좋아하는 계절에 집중하세요.",
+      "환경 문제를 이야기할 때 개인적인 실천(분리수거, 대중교통)과 연결하면 설득력이 높아집니다.",
+      "'I've noticed that...' 또는 'It seems like...' 표현으로 관찰을 부드럽게 전달하세요.",
+    ],
+    structure: `<strong>현지 날씨/계절</strong> → 특징<br>
+<strong>좋아하는 계절</strong> → 이유 + 활동<br>
+<strong>환경 이슈 or 실천</strong>`
+  },
+  {
+    title: "직장 / 업무", en: "Work & Career",
+    questions: [
+      "Describe your job or what you study.",
+      "What do you enjoy most about your work or studies?",
+      "Tell me about a challenging project or task you handled.",
+      "How do you balance work and personal life?",
+      "Where do you see yourself in five years professionally?"
+    ],
+    vocab: [
+      { en: "collaborate with", ko: "~와 협업하다" },
+      { en: "meet a deadline", ko: "마감 기한을 맞추다" },
+      { en: "take initiative", ko: "주도적으로 나서다" },
+      { en: "workload", ko: "업무량" },
+      { en: "remote work", ko: "재택근무" },
+      { en: "career path", ko: "커리어 경로" },
+    ],
+    tips: [
+      "직업 설명 시 직책 → 주요 업무 → 팀/환경 순으로 구체화하세요.",
+      "어려운 프로젝트 에피소드는 STAR 구조(상황→과제→행동→결과)로 이야기하세요.",
+      "일과 생활의 균형에 대한 개인적인 견해를 덧붙이면 답변이 더 자연스러워집니다.",
+    ],
+    structure: `<strong>직업/역할 소개</strong> → 주요 업무<br>
+<strong>챌린지 에피소드</strong> → 상황 → 행동 → 결과<br>
+<strong>미래 계획</strong>`
+  },
+  {
+    title: "교육 / 학교", en: "Education",
+    questions: [
+      "Describe your educational background.",
+      "What was your favorite subject in school and why?",
+      "Tell me about a teacher or professor who had a big impact on you.",
+      "How has education shaped who you are today?",
+      "What are your thoughts on the education system in your country?"
+    ],
+    vocab: [
+      { en: "major in", ko: "~을 전공하다" },
+      { en: "extracurricular activities", ko: "과외 활동" },
+      { en: "scholarship", ko: "장학금" },
+      { en: "curriculum", ko: "교육과정" },
+      { en: "critical thinking", ko: "비판적 사고" },
+      { en: "mentor", ko: "멘토" },
+    ],
+    tips: [
+      "학교 생활 묘사 시 학업 외 활동(동아리, 친구들)도 언급하면 풍부해집니다.",
+      "교육 시스템에 대한 의견은 개인 경험과 연결해야 자연스럽습니다.",
+      "선생님 소개는 외모보다 가르치는 방식이나 영향을 중심으로 하세요.",
+    ],
+    structure: `<strong>학력 소개</strong> → 전공/학교<br>
+<strong>기억에 남는 경험</strong> → 과목/선생님<br>
+<strong>교육의 영향</strong> → 현재 나에게`
+  },
+  {
+    title: "가족 / 인간관계", en: "Family & Relationships",
+    questions: [
+      "Tell me about your family.",
+      "How would you describe your relationship with your parents or siblings?",
+      "What role does family play in your life?",
+      "Tell me about a close friend and why that friendship is important to you.",
+      "How do you maintain relationships with people who live far away?"
+    ],
+    vocab: [
+      { en: "close-knit family", ko: "가족 사이가 돈독한" },
+      { en: "get along with", ko: "~와 잘 지내다" },
+      { en: "supportive", ko: "지지해주는" },
+      { en: "keep in touch", ko: "연락을 유지하다" },
+      { en: "trust", ko: "신뢰" },
+      { en: "unconditional", ko: "무조건적인" },
+    ],
+    tips: [
+      "가족 소개 시 각 구성원의 역할이나 특징을 간략히 묘사하세요.",
+      "친구 관계는 어떻게 만났는지(계기)와 특별한 추억을 연결하면 자연스럽습니다.",
+      "장거리 관계 유지 방법은 기술(영상 통화) + 직접 방문을 함께 언급하세요.",
+    ],
+    structure: `<strong>가족 구성</strong> → 분위기/관계<br>
+<strong>친한 친구</strong> → 계기 + 의미<br>
+<strong>관계 유지 방법</strong>`
+  },
+  {
+    title: "취미 활동", en: "Hobbies",
+    questions: [
+      "What are your hobbies, and how did you get into them?",
+      "How much time do you spend on your hobbies each week?",
+      "Has a hobby ever taught you a valuable life skill?",
+      "Tell me about a hobby you used to have but no longer do.",
+      "Is there a new hobby you'd like to take up?"
+    ],
+    vocab: [
+      { en: "get into", ko: "~에 빠지다/시작하다" },
+      { en: "dedicate time to", ko: "~에 시간을 할애하다" },
+      { en: "pick up a skill", ko: "기술을 익히다" },
+      { en: "lose interest in", ko: "~에 흥미를 잃다" },
+      { en: "rewarding", ko: "보람 있는" },
+      { en: "hands-on", ko: "직접 해보는" },
+    ],
+    tips: [
+      "취미를 소개할 때 단순 나열보다 가장 좋아하는 취미 하나를 깊게 설명하세요.",
+      "취미를 시작한 계기(우연히, 친구 권유)를 언급하면 답변이 더 생동감 있습니다.",
+      "예전 취미와 현재 취미를 비교하면 자연스럽게 과거/현재 시제를 혼용할 수 있습니다.",
+    ],
+    structure: `<strong>주요 취미</strong> → 시작 계기<br>
+<strong>구체적 활동</strong> → 빈도/방법<br>
+<strong>배운 점 or 새로운 관심사</strong>`
+  },
+  {
+    title: "여가 시간", en: "Free Time & Leisure",
+    questions: [
+      "How do you usually spend your free time?",
+      "What do you do to relax after a long day?",
+      "Tell me about a memorable weekend or holiday you recently had.",
+      "Do you prefer spending free time alone or with others?",
+      "How has the way you spend leisure time changed over the years?"
+    ],
+    vocab: [
+      { en: "unwind / de-stress", ko: "긴장을 풀다/스트레스 해소" },
+      { en: "recharge", ko: "재충전하다" },
+      { en: "spontaneous", ko: "즉흥적인" },
+      { en: "staycation", ko: "집에서 보내는 휴가" },
+      { en: "quality time", ko: "소중한 시간" },
+      { en: "binge-watch", ko: "몰아보다" },
+    ],
+    tips: [
+      "여가 시간 활동을 혼자 vs 함께 나눠 설명하면 자연스럽게 답변이 확장됩니다.",
+      "최근 기억에 남는 주말 이야기는 감각적 디테일(어디서, 무엇을 먹었는지 등)을 포함하세요.",
+      "여가 방식이 변한 이유(바빠진 생활, 나이 등)를 솔직하게 말하면 공감을 얻습니다.",
+    ],
+    structure: `<strong>일반적인 여가</strong> → 주중/주말 구분<br>
+<strong>기억에 남는 경험</strong> → 구체적 묘사<br>
+<strong>혼자 vs 함께</strong> → 선호와 이유`
+  },
+  {
+    title: "독서 / 책", en: "Reading & Books",
+    questions: [
+      "Do you enjoy reading? What kinds of books do you read?",
+      "Tell me about a book that made a strong impression on you.",
+      "How has your reading habit changed over time?",
+      "Do you prefer physical books or e-books? Why?",
+      "Has a book ever changed your perspective on something?"
+    ],
+    vocab: [
+      { en: "page-turner", ko: "흥미진진한 책" },
+      { en: "non-fiction / fiction", ko: "논픽션 / 픽션" },
+      { en: "plot", ko: "줄거리" },
+      { en: "character development", ko: "캐릭터 발전" },
+      { en: "thought-provoking", ko: "생각할 거리를 주는" },
+      { en: "skim through", ko: "훑어보다" },
+    ],
+    tips: [
+      "책을 많이 읽지 않는다면 최근에 읽은 기사나 온라인 콘텐츠로 자연스럽게 연결할 수 있습니다.",
+      "인상적인 책 설명 시 줄거리보다 '내게 미친 영향'에 집중하세요.",
+      "종이책 vs 전자책 비교는 편의성/경험 두 측면으로 나눠 논거를 제시하세요.",
+    ],
+    structure: `<strong>독서 습관</strong> → 장르, 빈도<br>
+<strong>인상적인 책</strong> → 내용 + 영향<br>
+<strong>종이책 vs 전자책</strong> → 선호와 이유`
+  },
+  {
+    title: "반려동물", en: "Pets & Animals",
+    questions: [
+      "Do you have any pets? Describe them.",
+      "What do you think are the pros and cons of having a pet?",
+      "Tell me about an experience you've had with an animal.",
+      "What is your favorite animal and why?",
+      "Have pets or animals played a meaningful role in your life?"
+    ],
+    vocab: [
+      { en: "companion", ko: "반려자/동반자" },
+      { en: "take care of", ko: "돌보다" },
+      { en: "veterinarian / vet", ko: "수의사" },
+      { en: "affectionate", ko: "애정 표현이 많은" },
+      { en: "allergic to", ko: "~에 알레르기가 있는" },
+      { en: "bond with", ko: "~와 유대를 쌓다" },
+    ],
+    tips: [
+      "반려동물이 없다면 이유(알레르기, 생활 환경)를 설명하고 어릴 때 키운 경험으로 전환하세요.",
+      "반려동물의 외모보다 성격이나 행동을 중심으로 묘사하면 더 자연스럽습니다.",
+      "장단점 질문은 책임감/비용 vs 정서적 유대/즐거움 구조로 답하세요.",
+    ],
+    structure: `<strong>반려동물 소개</strong> → 특징/성격<br>
+<strong>함께한 경험</strong> → 에피소드<br>
+<strong>장단점 or 의미</strong>`
+  },
+  {
+    title: "공원 / 야외 활동", en: "Parks & Outdoor Activities",
+    questions: [
+      "Is there a park or outdoor area you like to visit? Describe it.",
+      "What outdoor activities do you enjoy?",
+      "How often do you spend time outdoors, and what do you do there?",
+      "Has an outdoor experience ever been particularly memorable or challenging?",
+      "How have parks or public spaces changed in your city recently?"
+    ],
+    vocab: [
+      { en: "scenic view", ko: "경치 좋은 전망" },
+      { en: "hiking trail", ko: "등산로" },
+      { en: "lush greenery", ko: "무성한 녹음" },
+      { en: "refreshing", ko: "상쾌한" },
+      { en: "urban park", ko: "도심 공원" },
+      { en: "leisure facility", ko: "여가 시설" },
+    ],
+    tips: [
+      "공원 묘사 시 위치 → 크기/분위기 → 주로 하는 활동 순으로 설명하세요.",
+      "야외 활동은 계절과 연결하면 더 자연스러운 맥락이 됩니다.",
+      "도시 변화 언급 시 'used to be... but now...' 구조로 과거와 현재를 비교하세요.",
+    ],
+    structure: `<strong>즐겨 찾는 장소</strong> → 묘사<br>
+<strong>주요 활동</strong> → 계절/빈도<br>
+<strong>기억에 남는 경험 or 변화</strong>`
+  },
+  {
+    title: "콘서트 / 공연", en: "Concerts & Performances",
+    questions: [
+      "Have you ever attended a concert, play, or other live performance?",
+      "Describe a memorable performance you've seen.",
+      "How does watching a live performance differ from watching it online or on TV?",
+      "What kind of performances do you enjoy most?",
+      "Would you like to see any particular artist or show live? Why?"
+    ],
+    vocab: [
+      { en: "venue", ko: "공연장" },
+      { en: "atmosphere", ko: "분위기" },
+      { en: "encore", ko: "앙코르" },
+      { en: "sold out", ko: "매진" },
+      { en: "stage presence", ko: "무대 장악력" },
+      { en: "mesmerizing", ko: "매혹적인" },
+    ],
+    tips: [
+      "공연 경험 묘사 시 오감(소리, 분위기, 군중의 에너지)을 활용하면 생생합니다.",
+      "라이브 vs 온라인 비교는 몰입감(immersion)과 편의성(convenience)을 키워드로 하세요.",
+      "보고 싶은 공연 이야기는 그 이유(아티스트 스타일, 명성 등)를 구체적으로 말하세요.",
+    ],
+    structure: `<strong>공연 경험</strong> → 언제, 어디서<br>
+<strong>인상적인 장면</strong> → 감각적 묘사<br>
+<strong>라이브 vs 온라인 or 보고싶은 공연</strong>`
+  },
+  {
+    title: "음식점 / 카페", en: "Restaurants & Cafes",
+    questions: [
+      "Tell me about a restaurant or cafe you like to visit.",
+      "What kind of cuisine do you enjoy eating out?",
+      "Describe a memorable dining experience.",
+      "How do you decide where to eat when you go out?",
+      "Have you ever had a bad experience at a restaurant? What happened?"
+    ],
+    vocab: [
+      { en: "ambiance", ko: "분위기" },
+      { en: "service", ko: "서비스" },
+      { en: "signature dish", ko: "대표 메뉴" },
+      { en: "make a reservation", ko: "예약하다" },
+      { en: "worth the wait", ko: "기다릴 만한 가치가 있는" },
+      { en: "picky eater", ko: "음식을 가리는 사람" },
+    ],
+    tips: [
+      "음식점 소개는 위치 → 분위기 → 추천 메뉴 순으로 하세요.",
+      "식당 선택 방법은 리뷰, 추천, 분위기 등 기준을 2–3가지 언급하세요.",
+      "나쁜 경험은 상황 → 반응 → 결과(다시 갔는지 여부)로 마무리하세요.",
+    ],
+    structure: `<strong>좋아하는 음식점</strong> → 특징/메뉴<br>
+<strong>기억에 남는 경험</strong> → 묘사<br>
+<strong>선택 기준 or 나쁜 경험</strong>`
+  },
+  {
+    title: "은행 / 금융", en: "Banking & Finance",
+    questions: [
+      "How do you manage your finances on a day-to-day basis?",
+      "Have you ever had a problem with a bank or financial service?",
+      "How has banking changed with technology?",
+      "Do you have any savings goals? How are you working toward them?",
+      "What are your thoughts on credit cards versus cash?"
+    ],
+    vocab: [
+      { en: "transaction", ko: "거래" },
+      { en: "savings account", ko: "저축 계좌" },
+      { en: "budget", ko: "예산" },
+      { en: "interest rate", ko: "이자율" },
+      { en: "mobile banking", ko: "모바일 뱅킹" },
+      { en: "financial goal", ko: "재정 목표" },
+    ],
+    tips: [
+      "일상 금융 관리 방법(앱, 자동이체 등)을 구체적으로 설명하세요.",
+      "문제 상황은 어떻게 해결했는지까지 이야기해야 완성된 답변입니다.",
+      "카드 vs 현금 비교는 편의성, 보안, 소비 습관 관점에서 이야기하세요.",
+    ],
+    structure: `<strong>일상 금융 관리</strong> → 방법<br>
+<strong>기술 변화</strong> → 모바일 뱅킹<br>
+<strong>저축 목표 or 카드/현금</strong>`
+  },
+  {
+    title: "약국 / 의료", en: "Pharmacy & Healthcare",
+    questions: [
+      "Tell me about the healthcare system in your country.",
+      "Describe a time you visited a doctor or hospital.",
+      "How do you deal with minor health problems like a cold or headache?",
+      "What do you think about the cost of healthcare?",
+      "Have you ever needed emergency medical care?"
+    ],
+    vocab: [
+      { en: "prescription", ko: "처방전" },
+      { en: "over-the-counter", ko: "처방전 없이 살 수 있는" },
+      { en: "symptoms", ko: "증상" },
+      { en: "checkup", ko: "정기 검진" },
+      { en: "affordable", ko: "저렴한/부담 없는" },
+      { en: "emergency room", ko: "응급실" },
+    ],
+    tips: [
+      "병원 방문 경험은 언제, 왜 갔는지 → 과정 → 결과 순으로 이야기하세요.",
+      "의료비에 대한 의견은 한국과 다른 나라를 비교하면 풍부한 답변이 됩니다.",
+      "작은 증상(감기 등)을 어떻게 처리하는지는 솔직하게 개인 루틴을 공유하세요.",
+    ],
+    structure: `<strong>의료 시스템 소개</strong> → 특징<br>
+<strong>병원 경험</strong> → 에피소드<br>
+<strong>의료비 의견 or 응급 경험</strong>`
+  },
+  {
+    title: "대중교통", en: "Public Transportation",
+    questions: [
+      "What forms of transportation do you use in your daily life?",
+      "Compare driving a car to using public transportation.",
+      "Tell me about an interesting or unusual experience on public transportation.",
+      "How is the public transportation system in your city?",
+      "Have transportation options in your city changed in recent years?"
+    ],
+    vocab: [
+      { en: "commute", ko: "통근하다" },
+      { en: "rush hour", ko: "러시아워" },
+      { en: "fare", ko: "요금" },
+      { en: "transfer", ko: "환승하다" },
+      { en: "congestion", ko: "혼잡" },
+      { en: "eco-friendly transport", ko: "친환경 교통수단" },
+    ],
+    tips: [
+      "주로 이용하는 교통수단을 이유와 함께 설명하세요(편리함, 비용, 환경 등).",
+      "대중교통 vs 자가용 비교는 시간/비용/편의성 세 가지를 기준으로 하세요.",
+      "흥미로운 에피소드는 짧고 명확하게 상황 → 사건 → 반응으로 전달하세요.",
+    ],
+    structure: `<strong>주요 이용 교통수단</strong> → 이유<br>
+<strong>대중교통 vs 자가용</strong> → 비교<br>
+<strong>에피소드 or 변화</strong>`
+  },
+  {
+    title: "패션 / 옷차림", en: "Fashion & Clothing",
+    questions: [
+      "How would you describe your personal style?",
+      "How important is fashion to you?",
+      "Tell me about a piece of clothing or outfit that is special to you.",
+      "How has your style changed over the years?",
+      "What do you think about fast fashion and its environmental impact?"
+    ],
+    vocab: [
+      { en: "casual / formal", ko: "캐주얼 / 격식 있는" },
+      { en: "trendy / timeless", ko: "트렌디한 / 유행 안 타는" },
+      { en: "outfit", ko: "복장" },
+      { en: "sustainable fashion", ko: "지속 가능한 패션" },
+      { en: "express oneself", ko: "자신을 표현하다" },
+      { en: "wardrobe", ko: "옷장/의상" },
+    ],
+    tips: [
+      "패션에 관심이 없다면 '편안함 우선' 스타일을 솔직하게 설명해도 됩니다.",
+      "특별한 옷 이야기는 그 옷에 얽힌 감정이나 추억과 연결하세요.",
+      "패스트패션 의견은 환경적 영향 + 개인 소비 습관을 연결하세요.",
+    ],
+    structure: `<strong>개인 스타일</strong> → 특징/선호<br>
+<strong>스타일 변화</strong> → 과거 vs 현재<br>
+<strong>패스트패션 의견</strong>`
+  },
+  {
+    title: "여행지 묘사", en: "Describing a Place",
+    questions: [
+      "Describe a city or country you have visited that left a strong impression.",
+      "What made that place different from where you live?",
+      "Tell me about the people, food, or culture of that place.",
+      "Would you want to live there? Why or why not?",
+      "Is there a place you would recommend to others? Describe it."
+    ],
+    vocab: [
+      { en: "bustling / serene", ko: "활기찬 / 고요한" },
+      { en: "architecture", ko: "건축물" },
+      { en: "local cuisine", ko: "현지 음식" },
+      { en: "vibrant culture", ko: "활발한 문화" },
+      { en: "landmark", ko: "랜드마크" },
+      { en: "hospitality", ko: "환대" },
+    ],
+    tips: [
+      "장소 묘사 시 외관 → 분위기 → 사람/문화 순으로 층을 쌓으세요.",
+      "그 장소가 인상적이었던 이유를 감각적 세부 묘사(냄새, 소리, 색감)와 연결하세요.",
+      "살고 싶은지 묻는 질문은 장단점을 균형 있게 제시하며 개인 의견을 밝히세요.",
+    ],
+    structure: `<strong>장소 소개</strong> → 위치, 분위기<br>
+<strong>특별한 점</strong> → 문화/음식/사람<br>
+<strong>추천 이유 or 거주 의향</strong>`
+  },
+  {
+    title: "집에서 보내는 시간", en: "Spending Time at Home",
+    questions: [
+      "What do you usually do when you're at home?",
+      "Do you prefer spending time at home or going out? Why?",
+      "Has the way you spend time at home changed in recent years?",
+      "Tell me about a home activity you really enjoy.",
+      "What makes your home feel comfortable and welcoming?"
+    ],
+    vocab: [
+      { en: "homebody", ko: "집순이/집돌이" },
+      { en: "cozy atmosphere", ko: "아늑한 분위기" },
+      { en: "declutter", ko: "정리 정돈하다" },
+      { en: "hobby corner", ko: "취미 공간" },
+      { en: "home improvement", ko: "집 개선" },
+      { en: "routine", ko: "루틴" },
+    ],
+    tips: [
+      "집에서 하는 활동을 혼자 vs 가족과 함께로 나눠 설명하면 자연스럽습니다.",
+      "코로나 이후 집에서 보내는 시간이 늘었다면 그 변화를 예시로 들어도 좋습니다.",
+      "집이 편안한 이유는 물리적 환경(인테리어 등)과 심리적 요소 둘 다 언급하세요.",
+    ],
+    structure: `<strong>집에서 하는 활동</strong> → 루틴<br>
+<strong>집 vs 외출</strong> → 선호와 이유<br>
+<strong>편안함의 요소</strong>`
+  },
+  {
+    title: "집 구하기", en: "Finding a Home",
+    questions: [
+      "Tell me about the process of finding your current home.",
+      "What factors were most important to you when choosing a place to live?",
+      "Have you ever had any problems with renting or buying a home?",
+      "How is the housing market in your city?",
+      "Would you prefer renting or owning a home?"
+    ],
+    vocab: [
+      { en: "rent / lease", ko: "임대하다 / 리스" },
+      { en: "real estate agent", ko: "부동산 중개인" },
+      { en: "deposit", ko: "보증금" },
+      { en: "mortgage", ko: "주택 담보 대출" },
+      { en: "commute distance", ko: "통근 거리" },
+      { en: "furnished / unfurnished", ko: "가구 포함 / 미포함" },
+    ],
+    tips: [
+      "집을 구하는 과정은 기준 설정 → 검색 → 결정 순으로 단계적으로 설명하세요.",
+      "중요한 요소를 말할 때 이유와 함께 설명하면(위치 중요 → 출퇴근 때문에) 답변이 풍부해집니다.",
+      "임대 vs 구매는 재정 상황, 안정성, 자유도 관점에서 비교하세요.",
+    ],
+    structure: `<strong>집 구하는 과정</strong> → 기준<br>
+<strong>중요한 요소</strong> → 이유<br>
+<strong>임대 vs 구매 의견</strong>`
+  },
+  {
+    title: "이웃 / 동네", en: "Neighborhood",
+    questions: [
+      "Describe the neighborhood you currently live in.",
+      "What do you like most about your neighborhood?",
+      "Is there anything you would change about where you live?",
+      "Tell me about your neighbors.",
+      "How has your neighborhood changed over the years?"
+    ],
+    vocab: [
+      { en: "residential area", ko: "주거 지역" },
+      { en: "well-connected", ko: "교통이 편리한" },
+      { en: "tight-knit community", ko: "유대가 강한 커뮤니티" },
+      { en: "gentrification", ko: "젠트리피케이션" },
+      { en: "walkable", ko: "걸어다닐 수 있는" },
+      { en: "proximity to", ko: "~와의 근접성" },
+    ],
+    tips: [
+      "동네 묘사는 지리적 위치 → 편의시설 → 분위기 순으로 구체화하세요.",
+      "이웃 이야기는 사생활을 지키면서 일반적 인상(조용하다, 친절하다)을 중심으로 하세요.",
+      "변화를 말할 때 긍정적/부정적 변화를 균형 있게 제시하세요.",
+    ],
+    structure: `<strong>동네 소개</strong> → 위치, 분위기<br>
+<strong>장점 + 개선점</strong><br>
+<strong>변화 or 이웃 이야기</strong>`
+  },
+  {
+    title: "롤플레이: 약속 잡기", en: "Role-play: Making Plans",
+    questions: [
+      "[RP] Ask a friend three questions to make plans for this weekend.",
+      "[RP] You need to reschedule a meeting. Call your colleague and explain the situation.",
+      "[RP] You want to surprise a friend for their birthday. Ask three questions to plan it.",
+      "Tell me about a time you made last-minute plans with someone.",
+      "How do you usually coordinate schedules with friends or coworkers?"
+    ],
+    vocab: [
+      { en: "reschedule", ko: "일정을 변경하다" },
+      { en: "work around your schedule", ko: "일정에 맞추다" },
+      { en: "pencil in", ko: "잠정적으로 일정을 잡다" },
+      { en: "last-minute", ko: "막판에" },
+      { en: "available", ko: "시간이 되는" },
+      { en: "catch up", ko: "서로 최근 근황을 나누다" },
+    ],
+    tips: [
+      "롤플레이 질문은 반드시 3가지 이상의 질문을 자연스럽게 이어가며 대화 흐름을 만드세요.",
+      "단순히 'When are you free?'보다 'What does your weekend look like?' 같은 자연스러운 표현을 쓰세요.",
+      "일정 변경 상황은 사과 → 이유 → 대안 제시 순으로 이야기하세요.",
+    ],
+    structure: `<strong>오프닝</strong> → 용건 소개<br>
+<strong>질문 3개</strong> → 자연스럽게 이어가기<br>
+<strong>클로징</strong> → 확인/기대 표현`
+  },
+];
+
+const SAMPLES = [
+  // 0. 자기소개
+  `I currently work as a software developer at a mid-sized IT company in Seoul. My typical day starts around 9 AM — I check emails, attend a brief team standup, and then spend most of the day coding or reviewing pull requests. After work, I usually unwind by going for a run or watching something on Netflix.\n\nAs for my personality, I'd say I'm fairly outgoing. My friends would probably describe me as someone who's always up for trying new things. In terms of goals, I'm planning to improve my English to the point where I can communicate naturally in international settings — which is actually one of the main reasons I'm preparing for the OPIC right now.`,
+
+  // 1. 집 묘사
+  `I live in a two-bedroom apartment in Mapo-gu, Seoul, which I've been renting for about two years. My apartment is on the 12th floor, so it has a great view of the Han River on clear days. It's not huge, but it's cozy enough for me.\n\nMy living room is my favorite space — I have a comfortable sofa, plenty of natural light, and a bookshelf along one wall. If I could change anything, I'd probably renovate the kitchen since it's a bit outdated. But overall, the location makes up for it — I'm right next to a subway station and there are tons of cafes and restaurants within walking distance.`,
+
+  // 2. 여행
+  `One of my most memorable trips was to Kyoto, Japan, about two years ago. I went in spring specifically to see the cherry blossoms, and it was absolutely breathtaking. I visited Fushimi Inari, walked through the bamboo grove in Arashiyama, and spent an afternoon just soaking up the atmosphere of the traditional streets in Gion.\n\nThe most challenging part was navigating the train system — it was really confusing at first. But I eventually figured it out, and that experience taught me to be more flexible when things don't go as planned. I'd love to go back and explore more rural areas off the beaten path next time.`,
+
+  // 3. 영화 감상
+  `I'm a big fan of thrillers — there's something really satisfying about a well-executed plot twist. One film that left a strong impression on me was 'Parasite' by Bong Joon-ho. I remember being on the edge of my seat the entire time, and the ending completely caught me off guard.\n\nWhat made it so powerful wasn't just the story, but how visually stunning every scene was. I usually prefer watching movies at home because I can pause and really focus on the details. But for a major box office hit, going to the theater definitely adds to the experience — especially with great surround sound.`,
+
+  // 4. 음악 감상
+  `I listen to music pretty much all day — during my commute, while working, and especially when I'm exercising. I tend to gravitate toward indie pop and lo-fi hip-hop because it helps me focus without being too distracting.\n\nMy favorite artist right now is IU — she's known for her incredibly emotional lyrics and mellow vocals. There's a song called 'Palette' that really resonates with me because it's about staying true to yourself as you get older. I've never been to one of her concerts, but I'm hoping to catch one someday. Live performances just have a completely different energy that you simply can't recreate at home.`,
+
+  // 5. 운동/스포츠
+  `I work out about four times a week — usually a combination of running and weight training. I go to the gym near my office on weekdays, typically for about an hour after work. I started exercising regularly about three years ago when I realized I was getting tired too easily.\n\nSince then, I've noticed a huge improvement in both my energy levels and my mental health. Exercising is honestly the best way for me to de-stress after a long day. That said, I used to play basketball in college, which I really miss. I'd love to join a recreational league if I could find the time.`,
+
+  // 6. 쇼핑
+  `I'd say I'm a pretty selective shopper — I don't browse just for fun, but when I need something, I do a lot of research before buying. Lately, I do most of my shopping online because it's so much more convenient. Just last week I bought a new pair of running shoes and I compared reviews for about three days before deciding.\n\nThe biggest change in my shopping behavior is that I almost never make impulse buys anymore. I used to buy things just because they were on sale, but now I ask myself whether I'll actually use it. That said, I do enjoy a bit of window shopping on weekends — just walking around without any real intention to buy.`,
+
+  // 7. 요리/음식
+  `I cook at home maybe three or four times a week. Nothing too fancy — mostly Korean stews like doenjang-jjigae or simple pasta dishes I've learned from YouTube. The dish that means the most to me is my mom's kimchi jjigae. She made it completely from scratch with homemade kimchi, and it had this deep, savory flavor that I've never been able to replicate.\n\nMy diet has changed quite a bit since I started living alone — I eat less fried food and try to stick to more balanced meals. But honestly, I still love dining out, especially when I want comfort food that I know I can't make myself.`,
+
+  // 8. 건강/웰빙
+  `I try to take care of my health by sticking to a fairly consistent routine. I get up around 7, exercise three or four times a week, and aim for seven to eight hours of sleep. My diet isn't perfect, but I try to maintain a balanced approach — mostly home-cooked meals and not too much alcohol.\n\nThe thing I struggle with most is managing stress. Work can get pretty intense, and I've noticed I tend to burn out if I don't take breaks. What works best for me is going for a run in the evening — it completely clears my head. I've come to believe that mental well-being is just as important as physical health.`,
+
+  // 9. 기술/테크놀로지
+  `Technology plays a huge role in my daily life. I rely on my smartphone and laptop for pretty much everything — work, communication, navigation, entertainment. The apps I use most are Slack and Notion for work. Thanks to these tools, I can streamline my workflow and collaborate with teammates in real time, even when working remotely.\n\nBut I do see the downsides. Being constantly connected makes it really hard to truly switch off — there's always one more notification to check. I've been trying to do a kind of digital detox on weekends, like no work emails after 6 PM, and it's made a noticeable difference in how I feel by Monday.`,
+
+  // 10. 인터넷/SNS
+  `I use the internet constantly, mostly for work and staying informed. In terms of social media, I mainly use Instagram and YouTube — I check Instagram a couple of times a day, and YouTube is basically my default for entertainment. On one hand, social media has made it incredibly easy to stay connected and discover new content. On the other hand, I do worry about the filter bubble effect — you only see what the algorithm thinks you want, which can limit your perspective over time.\n\nI've had one experience where I noticed a misleading post going viral, and it made me much more careful about checking sources before sharing anything.`,
+
+  // 11. 환경/날씨
+  `Seoul has four very distinct seasons. Winters are cold and dry, summers are hot and humid — especially during the monsoon season in July. My favorite is autumn, because the weather is crisp and comfortable, and the foliage is just beautiful.\n\nWeather definitely affects my mood — I find cloudy days make me feel a bit sluggish. In terms of environmental issues, climate change concerns me the most. I've noticed that summers have been getting noticeably hotter over the past few years. Personally, I try to take small steps — I use public transportation instead of driving, recycle diligently, and always bring a reusable bag when I shop.`,
+
+  // 12. 직장/업무
+  `I work as a front-end developer at a startup in Gangnam. My main responsibilities include building and maintaining user interfaces and collaborating closely with designers and back-end engineers. The part I enjoy most is seeing something I built being used by real people.\n\nThe most challenging project I handled was a complete redesign of our main product dashboard. We had a very tight deadline and the whole team was under a lot of pressure. I took initiative and proposed a phased rollout approach, which helped us meet the deadline without sacrificing quality. In terms of work-life balance, I'm still working on it — remote work has definitely blurred the lines a bit.`,
+
+  // 13. 교육/학교
+  `I majored in computer science at a university in Seoul and graduated about four years ago. My favorite subject was algorithms — not because it was easy, but because it taught me a very systematic way of thinking. The professor who influenced me the most was incredibly passionate about his field. He didn't just teach the curriculum; he constantly challenged us to think about real-world applications.\n\nThat mindset has really shaped how I approach problems at work. As for the Korean education system, I think it's rigorous and effective in many ways, but sometimes too focused on exam scores rather than fostering critical thinking and creativity.`,
+
+  // 14. 가족/인간관계
+  `I'm from a fairly close-knit family. I have one older sister, and we get along really well — probably because we have similar tastes in movies and food. My parents live in Busan, so I don't see them as often as I'd like, but we video call every Sunday.\n\nMy closest friend is someone I've known since middle school. What makes that friendship so special is that we can be completely honest with each other — no judgment at all. Even when we go through periods without talking much, we pick up right where we left off. I think that kind of unconditional trust is genuinely rare.`,
+
+  // 15. 취미 활동
+  `My main hobby is street photography. I got into it about three years ago when I bought a second-hand camera on a whim. I dedicate maybe four or five hours a week to it, mostly on weekends when I walk around different neighborhoods looking for interesting moments to capture.\n\nWhat I love about it is that it forces me to really observe the world around me. It's taught me patience and an eye for detail, which has honestly been useful at work too. I used to play video games a lot in my early twenties, but I've gradually lost interest in that. Photography feels more hands-on and rewarding to me now.`,
+
+  // 16. 여가 시간
+  `During the week, my free time is pretty limited, so I mostly unwind by watching a show or reading a bit before bed. On weekends, though, I try to be more intentional — I might go hiking, meet friends for brunch, or just explore a new neighborhood with my camera.\n\nRecently, I had a really memorable weekend where a group of us did a spontaneous two-day trip to Jirisan. A friend texted on Friday night and we just went. That kind of unplanned quality time is honestly some of the best. I think as I've gotten older, I've started to appreciate just being present rather than having every minute scheduled.`,
+
+  // 17. 독서/책
+  `I read regularly, though maybe not as much as I'd like. I tend to prefer non-fiction — books on psychology, productivity, and technology. But occasionally I'll pick up a novel if it's highly recommended.\n\nThe book that changed my perspective the most was 'Thinking, Fast and Slow' by Daniel Kahneman. It completely reshaped how I think about decision-making — both at work and in everyday life. I had never thought so consciously about cognitive biases before. As for format, I use an e-reader for most things because it's convenient, but for books I really care about, I prefer physical copies — there's something about holding the actual pages that makes the reading experience feel more immersive.`,
+
+  // 18. 반려동물
+  `I don't currently have any pets, mainly because my apartment building doesn't allow them. But I grew up with a golden retriever named Mori, and that dog was absolutely part of the family. He was incredibly affectionate — always excited to see you no matter what kind of day you'd had.\n\nHaving him taught me a lot about unconditional care and responsibility. The biggest challenges were the cost of vet visits and the time commitment, but my parents still talk about him fondly even years after he passed. I definitely plan to get a dog again once I move somewhere that allows pets — I already know exactly what breed I'd want.`,
+
+  // 19. 공원/야외 활동
+  `There's a park along the Han River near my apartment that I visit fairly regularly, especially on weekends. It's a large urban park with cycling paths, open lawns, and a great view of the river. I usually go for a run or just take a walk to clear my head. In summer, I sometimes meet friends there for a picnic.\n\nThe most memorable outdoor experience I've had was hiking Seoraksan in October — the foliage was breathtaking and the trail was challenging enough to feel like a real achievement. The park near my home has changed a lot over the years — there are more leisure facilities now and it's become much more popular with families on weekends.`,
+
+  // 20. 콘서트/공연
+  `I've been to a few concerts, but the most memorable was seeing a jazz trio at a small venue in Itaewon. It was completely different from what I expected — very intimate, and the musicians talked with the audience between songs. The atmosphere was electric in the best possible way.\n\nWhat makes a live performance so special is the unpredictability — you feel the energy of the crowd and the performers feeding off each other in real time. Watching the same thing on YouTube just doesn't capture that at all. If I could see anyone live right now, it would be Jacob Collier — his stage presence is legendary, and I imagine seeing him perform live would be absolutely mesmerizing.`,
+
+  // 21. 음식점/카페
+  `There's a small Korean barbecue place near my office that I keep going back to. What I love about it is the ambiance — it's warm, a little rustic, and the service is genuinely attentive without being intrusive. Their signature dish is samgyeopsal with a special house marinade that I've never tasted anywhere else.\n\nWhen I'm choosing where to eat, I usually check reviews online first, then factor in the atmosphere and whether it's worth the wait. I did have a bad experience once at a newer restaurant where they completely got my order wrong and weren't very apologetic about it. I didn't go back after that.`,
+
+  // 22. 은행/금융
+  `I manage most of my finances through a mobile banking app. I check my balance regularly and set a rough monthly budget at the start of each month. One experience that really frustrated me was when my card was suddenly blocked while I was traveling — it turned out to be a fraud alert, but it took a while to resolve remotely. Since then, I always notify my bank before any trips.\n\nMobile banking has made things so much more convenient — I can do everything from my phone now. My main financial goal is to build up an emergency fund of about six months' worth of expenses. As for credit cards versus cash, I prefer cards for the convenience and the rewards points.`,
+
+  // 23. 약국/의료
+  `South Korea has a very solid healthcare system. Most medical costs are covered by national health insurance, so visits to the doctor are quite affordable. I had to visit the emergency room once a few years ago — I had a fever that wasn't getting better. The whole process from registration to treatment was surprisingly efficient, which I really appreciated.\n\nFor minor things like a cold or headache, I usually just go to a local pharmacy and pick up some over-the-counter medication. I try not to rely too much on pills and prefer to rest and stay hydrated instead. Regular checkups are something I've started prioritizing more seriously since I turned thirty.`,
+
+  // 24. 대중교통
+  `I use the subway every day for my commute — about 40 minutes each way. Seoul's public transportation system is genuinely excellent. It's clean, punctual, and very well-connected throughout the city. Compared to driving, it's much less stressful, especially during rush hour when the roads are incredibly congested and parking is expensive.\n\nThe most interesting experience I've had on public transport was accidentally getting on the wrong line late at night and ending up at a station I didn't recognize. I eventually found my way back, but it was a bit of an adventure. In recent years, the city has added more eco-friendly options like electric buses and bike-sharing stations.`,
+
+  // 25. 패션/옷차림
+  `My personal style is pretty casual — I prioritize comfort over trends. On weekdays, I usually go with clean basics: a good pair of jeans and a plain t-shirt or a light jacket. I care about looking put-together, but I wouldn't say I'm particularly fashion-conscious.\n\nMy style has changed a lot over the years — in college, I was much more experimental and tried lots of trendy looks. Now I prefer timeless pieces that I can wear across multiple seasons. When it comes to fast fashion, I have mixed feelings. It's convenient and affordable, but the environmental impact is real. I've been trying to shop more sustainably — buying fewer but better-quality items.`,
+
+  // 26. 여행지 묘사
+  `The place that's left the strongest impression on me is probably Lisbon, Portugal. I visited two summers ago and immediately fell in love with the city. It has this incredible combination of old architecture, colorful street art, and a warm, laid-back atmosphere that's hard to describe.\n\nThe local cuisine was outstanding — especially the pasteis de nata. What made Lisbon different from Seoul is the pace of life — nobody seemed to be in a rush. The hospitality was genuinely warm everywhere I went. I'd strongly recommend it to anyone who enjoys history and beautiful views. Would I want to live there? Honestly, yes — if it weren't for work, I'd seriously consider it.`,
+
+  // 27. 집에서 보내는 시간
+  `When I'm at home, I follow a fairly consistent routine. In the evenings, I cook dinner, handle any remaining work, and then wind down with a book or a show. On weekends, I might do some home improvement projects or just declutter — I find tidying up oddly satisfying.\n\nI'm definitely a bit of a homebody. I love the cozy atmosphere of my apartment, especially when the weather outside is bad. That said, I think it's easy to spend too much time at home and gradually lose touch with the world. Since the pandemic, a lot of people — including me — started spending much more time indoors, and while some habits stuck, I've been making a conscious effort to get out more recently.`,
+
+  // 28. 집 구하기
+  `Finding my current apartment was quite a process. I knew I wanted to be close to a subway line and within a reasonable commute to work — those were non-negotiable. I worked with a real estate agent and looked at about six or seven places before deciding.\n\nThe deposit system in Korea is quite unique — with jeonse, you essentially lend a large lump sum to the landlord and live rent-free, which is very different from how renting works in other countries. The housing market in Seoul is competitive and expensive, especially near the city center. As for whether I'd prefer renting or owning — right now I prefer the flexibility of renting, but long-term, I'd love to own a place.`,
+
+  // 29. 이웃/동네
+  `My neighborhood is in a residential area of western Seoul. It's not the most glamorous part of the city, but it's very livable. There are plenty of cafes, a supermarket within walking distance, and I'm right next to a subway station, so the proximity to transport is excellent.\n\nIt's a fairly quiet area — mostly families and young professionals. I don't know my neighbors personally, but from what I can tell, people tend to keep to themselves here, which I actually don't mind. In terms of changes, I've noticed more specialty cafes and boutiques popping up over the past couple of years, which suggests the area is slowly gentrifying. It's nice in some ways, but I do worry about rising rents.`,
+
+  // 30. 롤플레이: 약속 잡기
+  `Hey! I was thinking we should catch up this weekend — it's been a while. Are you free on Saturday or Sunday? I was thinking maybe brunch somewhere or just a walk in the park — what does your weekend look like?\n\nAlso, is there anywhere specific you've been wanting to try? I'm pretty flexible. Oh, and what time works best for you — morning or afternoon? I need to work around a family lunch on Sunday, so Saturday is probably easier for me. Let me know and I'll pencil it in. Looking forward to catching up!`,
+];
+
+const DAY_MS = 86400000;
+const START_DATE = new Date('2026-01-01');
+
+function getDayIndex(date) {
+  const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const s = new Date(START_DATE.getFullYear(), START_DATE.getMonth(), START_DATE.getDate());
+  const diff = Math.floor((d - s) / DAY_MS);
+  return ((diff % TOPICS.length) + TOPICS.length) % TOPICS.length;
+}
+
+function getTodayLocal() {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+}
+
+function formatDate(date) {
+  return date.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' });
+}
+
+function isCompleted(dateStr) {
+  const done = JSON.parse(localStorage.getItem('opic_done') || '{}');
+  return !!done[dateStr];
+}
+
+function toggleComplete(dateStr) {
+  const done = JSON.parse(localStorage.getItem('opic_done') || '{}');
+  done[dateStr] = !done[dateStr];
+  localStorage.setItem('opic_done', JSON.stringify(done));
+}
+
+function getStreak() {
+  const done = JSON.parse(localStorage.getItem('opic_done') || '{}');
+  let streak = 0;
+  const today = getTodayLocal();
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(today.getTime() - i * DAY_MS);
+    const key = d.toISOString().split('T')[0];
+    if (done[key]) streak++;
+    else if (i > 0) break;
+  }
+  return streak;
+}
+
+function toDateKey(date) {
+  return date.toISOString().split('T')[0];
+}
+
+let currentDate = getTodayLocal();
+let revealedSample = false;
+
+function render() {
+  const todayLocal = getTodayLocal();
+  const idx = getDayIndex(currentDate);
+  const topic = TOPICS[idx];
+  const dateKey = toDateKey(currentDate);
+  const completed = isCompleted(dateKey);
+  const streak = getStreak();
+  const totalDone = Object.values(JSON.parse(localStorage.getItem('opic_done') || '{}')).filter(Boolean).length;
+
+  // Date nav
+  const nav = document.getElementById('dateNav');
+  nav.innerHTML = `
+    <button onclick="changeDay(-1)">&#8592;</button>
+    <span class="date-label">${formatDate(currentDate)}</span>
+    <button onclick="changeDay(1)">&#8594;</button>
+    ${toDateKey(currentDate) !== toDateKey(todayLocal) ? '<button class="today-btn" onclick="goToday()">오늘</button>' : ''}
+  `;
+
+  // Calendar strip
+  const calWrap = document.getElementById('calStrip');
+  let calHtml = '<div class="cal-strip" id="calInner">';
+  for (let i = -6; i <= 6; i++) {
+    const d = new Date(currentDate.getTime() + i * DAY_MS);
+    const dKey = toDateKey(d);
+    const isActive = i === 0;
+    const isDone = isCompleted(dKey);
+    const wd = d.toLocaleDateString('ko-KR', { weekday: 'short' });
+    calHtml += `<div class="cal-day ${isActive ? 'active' : ''} ${isDone ? 'done-day' : ''}" onclick="jumpToDate('${dKey}')">
+      <span class="cal-wd">${wd}</span>
+      <span class="cal-d">${d.getDate()}</span>
+      <span class="cal-dot"></span>
+    </div>`;
+  }
+  calHtml += '</div>';
+  calWrap.innerHTML = calHtml;
+
+  // Main content
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="topic-header">
+      <div class="topic-number">Day ${idx + 1} of ${TOPICS.length}</div>
+      <div class="topic-title">${topic.title}</div>
+      <div class="topic-title-en">${topic.en}</div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" style="width:${((idx+1)/TOPICS.length*100).toFixed(1)}%"></div>
+      </div>
+      <div class="progress-label">
+        <span>${idx+1} / ${TOPICS.length} 주제</span>
+        <span>총 ${totalDone}일 완료</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">오늘의 질문</div>
+      <ul class="questions-list">
+        ${topic.questions.map((q,i) => `
+          <li class="question-item">
+            <span class="q-num">${i+1}</span>
+            <span class="q-text">${q}</span>
+          </li>
+        `).join('')}
+      </ul>
+    </div>
+
+    <div class="section">
+      <div class="section-title">핵심 표현</div>
+      <div class="vocab-grid">
+        ${topic.vocab.map(v => `
+          <div class="vocab-item">
+            <div class="vocab-en">${v.en}</div>
+            <div class="vocab-ko">${v.ko}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">답변 구조</div>
+      <div class="structure-box">${topic.structure}</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">IH 팁</div>
+      <div class="tip-list">
+        ${topic.tips.map(t => `
+          <div class="tip-item"><span class="tip-dot"></span><span>${t}</span></div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">예시 답변</div>
+      <button class="sample-toggle" onclick="toggleSample()">
+        ${revealedSample ? '▲ 예시 답변 닫기' : '▼ 예시 답변 보기 (IH 수준)'}
+      </button>
+      ${revealedSample ? `<div class="sample-body">${(SAMPLES[idx] || '').replace(/\n\n/g, '<br><br>').replace(/\n/g, ' ')}</div>` : ''}
+    </div>
+
+    <button class="done-btn ${completed ? 'completed' : ''}" onclick="handleDone('${dateKey}')">
+      ${completed ? '✓ 오늘 학습 완료' : '오늘 학습 완료 표시'}
+    </button>
+    <div class="streak-info">연속 학습 <span>${streak}일</span></div>
+  `;
+}
+
+function changeDay(delta) {
+  currentDate = new Date(currentDate.getTime() + delta * DAY_MS);
+  revealedSample = false;
+  render();
+}
+
+function goToday() {
+  currentDate = getTodayLocal();
+  revealedSample = false;
+  render();
+}
+
+function jumpToDate(dateStr) {
+  const parts = dateStr.split('-');
+  currentDate = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+  revealedSample = false;
+  render();
+}
+
+function toggleSample() {
+  revealedSample = !revealedSample;
+  render();
+}
+
+function handleDone(dateKey) {
+  toggleComplete(dateKey);
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
