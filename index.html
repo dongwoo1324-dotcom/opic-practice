@@ -1575,14 +1575,14 @@ function render() {
       <div class="section-title">오늘의 질문</div>
       <ul class="questions-list">
         ${topic.questions.slice(0, 2).map((q,i) => {
-          const saved = loadAnswer(dateKey, i);
+          const saved = loadAnswer(idx, i);
           const wc = wordCount(saved);
           return `
           <li class="question-item">
             <span class="q-num">${i+1}</span>
             <div class="q-wrap">
               <span class="q-text">${q}</span>
-              <textarea class="answer-input" id="ans-${i}" placeholder="여기에 영어로 답변을 작성해보세요..." oninput="saveAnswer('${dateKey}', ${i}, this.value)">${saved}</textarea>
+              <textarea class="answer-input" id="ans-${i}" placeholder="여기에 영어로 답변을 작성해보세요..." oninput="saveAnswer(${idx}, ${i}, this.value)">${saved}</textarea>
               <div class="word-count${wc > 0 ? ' has-text' : ''}" id="wc-${i}">${wc > 0 ? wc + ' words' : ''}</div>
             </div>
           </li>`;
@@ -1655,8 +1655,8 @@ function toggleSample() {
   render();
 }
 
-function saveAnswer(dateKey, qIdx, value) {
-  localStorage.setItem(`opic_ans_${dateKey}_${qIdx}`, value);
+function saveAnswer(topicIdx, qIdx, value) {
+  localStorage.setItem(`opic_ans_${topicIdx}_${qIdx}`, value);
   const wc = document.getElementById(`wc-${qIdx}`);
   if (!wc) return;
   const n = wordCount(value);
@@ -1664,8 +1664,8 @@ function saveAnswer(dateKey, qIdx, value) {
   wc.className = 'word-count' + (n > 0 ? ' has-text' : '');
 }
 
-function loadAnswer(dateKey, qIdx) {
-  return localStorage.getItem(`opic_ans_${dateKey}_${qIdx}`) || '';
+function loadAnswer(topicIdx, qIdx) {
+  return localStorage.getItem(`opic_ans_${topicIdx}_${qIdx}`) || '';
 }
 
 function wordCount(text) {
