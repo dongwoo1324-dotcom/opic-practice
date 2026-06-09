@@ -353,6 +353,115 @@
     text-align: right;
   }
   .word-count.has-text { color: #888; }
+
+  /* review */
+  .review-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+  }
+  .review-btn {
+    padding: 7px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    background: #1a1a1a;
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    letter-spacing: 0.2px;
+  }
+  .review-btn:hover:not(:disabled) { opacity: 0.75; }
+  .review-btn:disabled { background: #ddd; color: #aaa; cursor: default; }
+  .review-btn.loading { opacity: 0.6; cursor: wait; }
+
+  .review-output { margin-top: 12px; }
+
+  .review-loading {
+    padding: 18px;
+    background: #f7f7f5;
+    border-radius: 10px;
+    font-size: 13px;
+    color: #999;
+    text-align: center;
+    letter-spacing: 0.3px;
+  }
+
+  .review-result {
+    padding: 20px 22px;
+    background: #f4f9ff;
+    border: 1px solid #d4e8ff;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.8;
+    color: #1a1a1a;
+  }
+  .review-result .r-section { margin-bottom: 14px; }
+  .review-result .r-section:last-child { margin-bottom: 0; }
+  .review-result .r-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #6a9fd8;
+    margin-bottom: 6px;
+  }
+  .review-result .r-body { color: #222; }
+  .review-result .r-example {
+    margin-top: 5px;
+    padding: 8px 12px;
+    background: #fff;
+    border-left: 2px solid #6a9fd8;
+    border-radius: 4px;
+    font-size: 13.5px;
+    color: #333;
+    font-style: italic;
+  }
+
+  .review-error {
+    padding: 14px 16px;
+    background: #fff4f4;
+    border: 1px solid #ffd0d0;
+    border-radius: 10px;
+    font-size: 13px;
+    color: #c00;
+  }
+  .reset-key-btn {
+    background: none; border: none;
+    color: #c00; text-decoration: underline;
+    cursor: pointer; font-size: 13px; padding: 0; margin-left: 6px;
+  }
+
+  .api-key-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: #fffbe6;
+    border: 1px solid #ffe58f;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: #7a6000;
+  }
+  .api-key-bar input {
+    flex: 1;
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: monospace;
+  }
+  .api-key-bar button {
+    padding: 5px 14px;
+    background: #1a1a1a;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+  }
 </style>
 </head>
 <body>
@@ -1584,6 +1693,10 @@ function render() {
               <span class="q-text">${q}</span>
               <textarea class="answer-input" id="ans-${i}" placeholder="여기에 영어로 답변을 작성해보세요..." oninput="saveAnswer(${idx}, ${i}, this.value)">${saved}</textarea>
               <div class="word-count${wc > 0 ? ' has-text' : ''}" id="wc-${i}">${wc > 0 ? wc + ' words' : ''}</div>
+              <div class="review-actions">
+                <button class="review-btn" id="review-btn-${i}" onclick="reviewAnswer(${idx}, ${i})" ${!saved.trim() ? 'disabled' : ''}>검토</button>
+              </div>
+              <div class="review-output" id="review-${i}"></div>
             </div>
           </li>`;
         }).join('')}
@@ -1658,10 +1771,13 @@ function toggleSample() {
 function saveAnswer(topicIdx, qIdx, value) {
   localStorage.setItem(`opic_ans_${topicIdx}_${qIdx}`, value);
   const wc = document.getElementById(`wc-${qIdx}`);
-  if (!wc) return;
-  const n = wordCount(value);
-  wc.textContent = n > 0 ? n + ' words' : '';
-  wc.className = 'word-count' + (n > 0 ? ' has-text' : '');
+  if (wc) {
+    const n = wordCount(value);
+    wc.textContent = n > 0 ? n + ' words' : '';
+    wc.className = 'word-count' + (n > 0 ? ' has-text' : '');
+  }
+  const btn = document.getElementById(`review-btn-${qIdx}`);
+  if (btn) btn.disabled = !value.trim();
 }
 
 function loadAnswer(topicIdx, qIdx) {
@@ -1670,6 +1786,121 @@ function loadAnswer(topicIdx, qIdx) {
 
 function wordCount(text) {
   return text.trim() ? text.trim().split(/\s+/).length : 0;
+}
+
+async function reviewAnswer(topicIdx, qIdx) {
+  let apiKey = localStorage.getItem('opic_api_key');
+  if (!apiKey) {
+    apiKey = prompt('Anthropic API 키를 입력하세요 (최초 1회만 저장됩니다).\n\n발급: https://console.anthropic.com/settings/keys');
+    if (!apiKey || !apiKey.trim()) return;
+    localStorage.setItem('opic_api_key', apiKey.trim());
+    apiKey = apiKey.trim();
+  }
+
+  const answer = loadAnswer(topicIdx, qIdx);
+  if (!answer.trim()) return;
+
+  const topic = TOPICS[topicIdx];
+  const question = topic.questions[qIdx];
+  const btn = document.getElementById(`review-btn-${qIdx}`);
+  const output = document.getElementById(`review-${qIdx}`);
+
+  btn.disabled = true;
+  btn.classList.add('loading');
+  btn.textContent = '검토 중…';
+  output.innerHTML = '<div class="review-loading">AI가 답변을 분석하고 있습니다...</div>';
+
+  const prompt = `당신은 OPIc IH 목표 학습자를 돕는 영어 말하기 코치입니다.
+
+토픽: ${topic.title} (${topic.en})
+질문: ${question}
+학습자 답변: ${answer}
+
+아래 형식으로 한국어로 피드백을 주세요. 영어 예시문은 영어로 작성하세요.
+
+[전반적 평가]
+IH 기준 충족 여부를 한두 문장으로 평가
+
+[잘된 점]
+• 구체적인 강점 2가지
+
+[개선 포인트]
+• 개선점 1: 설명
+  → 수정 예시: "..."
+• 개선점 2: 설명
+  → 수정 예시: "..."
+
+[업그레이드 버전]
+원래 답변을 IH 수준으로 한 단계 업그레이드한 한 단락 (영어)`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-request-header': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1200,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    const text = data.content[0].text;
+    output.innerHTML = renderReview(text);
+  } catch (e) {
+    output.innerHTML = `<div class="review-error">오류가 발생했습니다: ${e.message}<button class="reset-key-btn" onclick="resetApiKey()">API 키 재설정</button></div>`;
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove('loading');
+    btn.textContent = '재검토';
+  }
+}
+
+function renderReview(text) {
+  const sections = [
+    { key: '[전반적 평가]', label: '전반적 평가' },
+    { key: '[잘된 점]',     label: '잘된 점' },
+    { key: '[개선 포인트]', label: '개선 포인트' },
+    { key: '[업그레이드 버전]', label: '업그레이드 버전' },
+  ];
+
+  let html = '<div class="review-result">';
+  sections.forEach((sec, i) => {
+    const start = text.indexOf(sec.key);
+    if (start === -1) return;
+    const nextIdx = sections.slice(i + 1).map(s => text.indexOf(s.key)).find(n => n > start);
+    const raw = (nextIdx ? text.slice(start + sec.key.length, nextIdx) : text.slice(start + sec.key.length)).trim();
+
+    const body = raw
+      .replace(/→\s*수정 예시:\s*"([^"]+)"/g, '<div class="r-example">$1</div>')
+      .replace(/→\s*수정 예시:\s*"([^"]+)"/g, '<div class="r-example">$1</div>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br>');
+
+    html += `<div class="r-section"><div class="r-label">${sec.label}</div><div class="r-body">${body}</div></div>`;
+  });
+
+  if (html === '<div class="review-result">') {
+    const fallback = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+    html += `<div class="r-body">${fallback}</div>`;
+  }
+
+  return html + '</div>';
+}
+
+function resetApiKey() {
+  localStorage.removeItem('opic_api_key');
+  alert('API 키가 초기화되었습니다. 검토 버튼을 다시 누르면 입력할 수 있습니다.');
 }
 
 function handleDone(dateKey) {
