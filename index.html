@@ -468,7 +468,11 @@
 
 <header>
   <div class="logo">OPIC IH Daily</div>
-  <div class="badge">IH</div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div class="badge">IH</div>
+    <button onclick="showSettings()" title="검토 설정"
+      style="background:none;border:1px solid #ddd;border-radius:7px;padding:4px 9px;font-size:16px;cursor:pointer;line-height:1;color:#555;">⚙</button>
+  </div>
 </header>
 
 <main>
@@ -1789,28 +1793,29 @@ function wordCount(text) {
 }
 
 async function reviewAnswer(topicIdx, qIdx) {
-  let apiKey = localStorage.getItem('opic_api_key');
-  if (!apiKey) {
-    apiKey = prompt('Anthropic API 키를 입력하세요 (최초 1회만 저장됩니다).\n\n발급: https://console.anthropic.com/settings/keys');
-    if (!apiKey || !apiKey.trim()) return;
-    localStorage.setItem('opic_api_key', apiKey.trim());
-    apiKey = apiKey.trim();
+  // 설정 확인
+  let apiKey   = localStorage.getItem('opic_api_key');
+  let proxyUrl = localStorage.getItem('opic_proxy_url');
+
+  if (!apiKey || !proxyUrl) {
+    showSettings(() => reviewAnswer(topicIdx, qIdx));
+    return;
   }
 
   const answer = loadAnswer(topicIdx, qIdx);
   if (!answer.trim()) return;
 
-  const topic = TOPICS[topicIdx];
+  const topic    = TOPICS[topicIdx];
   const question = topic.questions[qIdx];
-  const btn = document.getElementById(`review-btn-${qIdx}`);
-  const output = document.getElementById(`review-${qIdx}`);
+  const btn      = document.getElementById(`review-btn-${qIdx}`);
+  const output   = document.getElementById(`review-${qIdx}`);
 
   btn.disabled = true;
   btn.classList.add('loading');
   btn.textContent = '검토 중…';
   output.innerHTML = '<div class="review-loading">AI가 답변을 분석하고 있습니다...</div>';
 
-  const prompt = `당신은 OPIc IH 목표 학습자를 돕는 영어 말하기 코치입니다.
+  const userPrompt = `당신은 OPIc IH 목표 학습자를 돕는 영어 말하기 코치입니다.
 
 토픽: ${topic.title} (${topic.en})
 질문: ${question}
@@ -1834,18 +1839,17 @@ IH 기준 충족 여부를 한두 문장으로 평가
 원래 답변을 IH 수준으로 한 단계 업그레이드한 한 단락 (영어)`;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch(proxyUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-request-header': 'true'
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 1200,
-        messages: [{ role: 'user', content: prompt }]
+        messages: [{ role: 'user', content: userPrompt }]
       })
     });
 
@@ -1858,12 +1862,115 @@ IH 기준 충족 여부를 한두 문장으로 평가
     const text = data.content[0].text;
     output.innerHTML = renderReview(text);
   } catch (e) {
-    output.innerHTML = `<div class="review-error">오류가 발생했습니다: ${e.message}<button class="reset-key-btn" onclick="resetApiKey()">API 키 재설정</button></div>`;
+    output.innerHTML = `<div class="review-error">오류: ${e.message} <button class="reset-key-btn" onclick="showSettings()">설정 다시 하기</button></div>`;
   } finally {
     btn.disabled = false;
     btn.classList.remove('loading');
     btn.textContent = '재검토';
   }
+}
+
+// ── 설정 모달 ──────────────────────────────────────────
+function showSettings(onSave) {
+  const existing = document.getElementById('settings-overlay');
+  if (existing) existing.remove();
+
+  const savedKey   = localStorage.getItem('opic_api_key')   || '';
+  const savedProxy = localStorage.getItem('opic_proxy_url') || '';
+
+  const overlay = document.createElement('div');
+  overlay.id = 'settings-overlay';
+  overlay.style.cssText = `
+    position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;
+    display:flex;align-items:center;justify-content:center;padding:20px;`;
+
+  overlay.innerHTML = `
+    <div style="background:#fff;border-radius:16px;padding:28px 24px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+      <div style="font-size:16px;font-weight:700;margin-bottom:4px;">검토 기능 설정</div>
+      <div style="font-size:13px;color:#888;margin-bottom:20px;">최초 1회만 설정하면 저장됩니다.</div>
+
+      <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:6px;">
+        Anthropic API 키
+        <a href="https://console.anthropic.com/settings/keys" target="_blank"
+           style="font-weight:400;color:#6a9fd8;margin-left:6px;">발급받기 →</a>
+      </label>
+      <input id="cfg-key" type="password" placeholder="sk-ant-..." value="${savedKey}"
+        style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px;font-family:monospace;box-sizing:border-box;margin-bottom:16px;">
+
+      <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:6px;">
+        Cloudflare Worker 프록시 URL
+        <a href="https://dash.cloudflare.com/?to=/:account/workers-and-pages/create/workers/new"
+           target="_blank" style="font-weight:400;color:#6a9fd8;margin-left:6px;">워커 만들기 →</a>
+      </label>
+      <input id="cfg-proxy" type="text" placeholder="https://opic-proxy.YOUR-NAME.workers.dev"
+        value="${savedProxy}"
+        style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px;font-family:monospace;box-sizing:border-box;margin-bottom:8px;">
+
+      <details style="margin-bottom:18px;">
+        <summary style="font-size:12px;color:#aaa;cursor:pointer;user-select:none;">워커 코드 복사하기</summary>
+        <pre id="worker-code" style="margin-top:8px;padding:12px;background:#f7f7f5;border-radius:8px;font-size:11px;overflow-x:auto;white-space:pre-wrap;color:#333;">${workerCode()}</pre>
+        <button onclick="copyWorkerCode()" style="margin-top:6px;padding:5px 14px;font-size:12px;background:#1a1a1a;color:#fff;border:none;border-radius:6px;cursor:pointer;">코드 복사</button>
+      </details>
+
+      <div style="display:flex;gap:10px;">
+        <button onclick="saveSettings()" style="flex:1;padding:12px;background:#1a1a1a;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">저장</button>
+        <button onclick="document.getElementById('settings-overlay').remove()"
+          style="padding:12px 16px;background:#f7f7f5;color:#555;border:none;border-radius:10px;font-size:14px;cursor:pointer;">취소</button>
+      </div>
+    </div>`;
+
+  overlay.dataset.onSave = onSave ? 'yes' : '';
+  document.body.appendChild(overlay);
+  window._settingsOnSave = onSave || null;
+}
+
+function workerCode() {
+  return `export default {
+  async fetch(request) {
+    const cors = {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers':
+        'Content-Type, x-api-key, anthropic-version',
+    };
+    if (request.method === 'OPTIONS')
+      return new Response(null, { headers: cors });
+
+    const apiKey = request.headers.get('x-api-key');
+    const body   = await request.text();
+    const res    = await fetch(
+      'https://api.anthropic.com/v1/messages',
+      { method:'POST',
+        headers:{ 'Content-Type':'application/json',
+                  'x-api-key': apiKey,
+                  'anthropic-version':'2023-06-01' },
+        body }
+    );
+    return new Response(await res.text(), {
+      status: res.status,
+      headers: { 'Content-Type':'application/json', ...cors },
+    });
+  },
+};`;
+}
+
+function copyWorkerCode() {
+  navigator.clipboard.writeText(workerCode()).then(() => {
+    const btn = event.target;
+    btn.textContent = '복사됨!';
+    setTimeout(() => btn.textContent = '코드 복사', 1500);
+  });
+}
+
+function saveSettings() {
+  const key   = document.getElementById('cfg-key').value.trim();
+  const proxy = document.getElementById('cfg-proxy').value.trim();
+  if (!key)   { alert('API 키를 입력하세요.'); return; }
+  if (!proxy) { alert('프록시 URL을 입력하세요.'); return; }
+  localStorage.setItem('opic_api_key',   key);
+  localStorage.setItem('opic_proxy_url', proxy);
+  document.getElementById('settings-overlay').remove();
+  if (window._settingsOnSave) window._settingsOnSave();
 }
 
 function renderReview(text) {
@@ -1900,7 +2007,8 @@ function renderReview(text) {
 
 function resetApiKey() {
   localStorage.removeItem('opic_api_key');
-  alert('API 키가 초기화되었습니다. 검토 버튼을 다시 누르면 입력할 수 있습니다.');
+  localStorage.removeItem('opic_proxy_url');
+  alert('설정이 초기화되었습니다.');
 }
 
 function handleDone(dateKey) {
